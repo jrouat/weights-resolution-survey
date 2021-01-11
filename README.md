@@ -1,6 +1,6 @@
-# pyTorch Boilerplate
+# Weights resolution survey
 
-Generic code template for pytorch project.
+Quick study of the effects of weights resolution on the accuracy of a neural network.
 
 ## Install
 

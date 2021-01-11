@@ -1,14 +1,15 @@
 from typing import Any
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as f
+import torchvision.transforms as tr
 from torch import optim
 
 
-class SimpleClassifier(nn.Module):
+class FeedForward(nn.Module):
     """
-    Simple classifier neural network.
-    Should be use as an example.
+    Simple feed forward classifier neural network.
     """
 
     def __init__(self, input_size: int, nb_classes: int):
@@ -57,3 +58,13 @@ class SimpleClassifier(nn.Module):
         self._optimizer.step()
 
         return loss
+
+    @staticmethod
+    def get_transforms():
+        """
+        Define the data pre-processing to apply on the datasets before to use this neural network.
+        """
+        return tr.Compose([
+            tr.ToTensor(),  # Convert to pytorch tensor
+            tr.Lambda(lambda x: torch.flatten(x))  # Flatten the 28x28 image to a 784 array
+        ])

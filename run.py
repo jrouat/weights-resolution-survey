@@ -1,4 +1,6 @@
+import logging
 import random
+import sys
 
 import numpy as np
 import seaborn as sns
@@ -6,11 +8,17 @@ import torch
 from torch.nn import Module
 from torch.utils.data import Dataset, DataLoader
 
+LOGGER = logging.getLogger('weights-resolution-survey')
+
 
 def preparation() -> None:
     """
     Prepare the environment before all operations.
     """
+
+    # Configure logging
+    logging.basicConfig(stream=sys.stdout, format='%(asctime)s [%(levelname)s] %(message)s')
+    LOGGER.setLevel(logging.DEBUG)
 
     # Set random seeds for reproducibility
     random.seed(42)
@@ -37,14 +45,20 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     network.to(device)
 
     # Use the pyTorch data loader
-    train_loader = DataLoader(train_dataset, batch_size=4, shuffle=True, num_workers=2)
+    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=2)
+    nb_batch = len(train_loader)
 
     # Iterate epoch
-    for epoch in range(4):
+    nb_epoch = 1
+    for epoch in range(nb_epoch):
+        LOGGER.info(f'Start epoch {epoch + 1:03}/{nb_epoch} ({epoch / nb_epoch * 100:05.2f}%)')
+
         # Iterate batches
         for i, data in enumerate(train_loader):
+            LOGGER.debug(f'Start training batch {i + 1:03}/{nb_batch} ({i / nb_batch * 100:05.2f}%)')
             # Get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
 
             # Run a training set for these data
             loss = network.training_step(inputs, labels)
+            LOGGER.debug(f'Batch loss: {loss:.5f}')
