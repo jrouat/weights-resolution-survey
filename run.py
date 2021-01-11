@@ -1,4 +1,5 @@
 import logging
+import math
 import random
 import sys
 
@@ -7,6 +8,8 @@ import seaborn as sns
 import torch
 from torch.nn import Module
 from torch.utils.data import Dataset, DataLoader
+
+from corrupt_network import reduce_resolution
 
 LOGGER = logging.getLogger('weights-resolution-survey')
 
@@ -50,10 +53,19 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     # Start normal test
     _test(test_dataset, network)
 
+    # Reduce the resolution of the weights
+    min_value = -1
+    max_value = 1
+    delta = 0.5
+    nb_states = (max_value - min_value) / delta
+    reduce_resolution(network, min_value, max_value, delta)
+    LOGGER.info(f'Network resolution decreased to {nb_states} states ({math.log2(nb_states):.2} bits)')
+
     # Start low resolution test
+    _test(test_dataset, network)
 
 
-def _train(train_dataset: Dataset, test_dataset: Dataset, network: Module):
+def _train(train_dataset: Dataset, test_dataset: Dataset, network: Module) -> None:
     LOGGER.info('Start network training...')
 
     # Turn on the training mode of the network
@@ -81,7 +93,7 @@ def _train(train_dataset: Dataset, test_dataset: Dataset, network: Module):
     LOGGER.info('Network training competed')
 
 
-def _test(test_dataset: Dataset, network: Module):
+def _test(test_dataset: Dataset, network: Module) -> None:
     LOGGER.info('Start network testing...')
 
     # Turn on the inference mode of the network
