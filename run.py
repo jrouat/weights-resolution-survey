@@ -18,7 +18,7 @@ def preparation() -> None:
 
     # Configure logging
     logging.basicConfig(stream=sys.stdout, format='%(asctime)s [%(levelname)s] %(message)s')
-    LOGGER.setLevel(logging.DEBUG)
+    LOGGER.setLevel(logging.INFO)
 
     # Set random seeds for reproducibility
     random.seed(42)
@@ -44,12 +44,27 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     # Send the network to the selected device (CPU or CUDA)
     network.to(device)
 
+    # Start the training
+    _train(train_dataset, test_dataset, network)
+
+    # Start normal test
+    _test(test_dataset, network)
+
+    # Start low resolution test
+
+
+def _train(train_dataset: Dataset, test_dataset: Dataset, network: Module):
+    LOGGER.info('Start network training...')
+
+    # Turn on the training mode of the network
+    network.train()
+
     # Use the pyTorch data loader
-    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=2)
+    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
     nb_batch = len(train_loader)
 
     # Iterate epoch
-    nb_epoch = 1
+    nb_epoch = 4
     for epoch in range(nb_epoch):
         LOGGER.info(f'Start epoch {epoch + 1:03}/{nb_epoch} ({epoch / nb_epoch * 100:05.2f}%)')
 
@@ -62,3 +77,38 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
             # Run a training set for these data
             loss = network.training_step(inputs, labels)
             LOGGER.debug(f'Batch loss: {loss:.5f}')
+
+    LOGGER.info('Network training competed')
+
+
+def _test(test_dataset: Dataset, network: Module):
+    LOGGER.info('Start network testing...')
+
+    # Turn on the inference mode of the network
+    network.eval()
+
+    # Use the pyTorch data loader
+    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True, num_workers=4)
+    nb_batch = len(test_loader)
+
+    nb_correct = 0
+    nb_total = 0
+    # Diable gradient for performances
+    with torch.no_grad():
+        # Iterate batches
+        for i, data in enumerate(test_loader):
+            LOGGER.debug(f'Start testing batch {i + 1:03}/{nb_batch} ({i / nb_batch * 100:05.2f}%)')
+            # Get the inputs: data is a list of [inputs, labels]
+            inputs, labels = data
+
+            # Forward
+            outputs = network(inputs)
+            _, predicted = torch.max(outputs, 1)  # Get the index of the max value for each image of the batch
+
+            # Count the result
+            nb_total += len(labels)
+            nb_correct += torch.eq(predicted, labels).sum()
+
+    LOGGER.info(f'Test overall accuracy: {nb_correct / nb_total * 100:05.2f}%')
+
+    LOGGER.info('Network testing competed')
