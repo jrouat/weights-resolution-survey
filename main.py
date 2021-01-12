@@ -14,7 +14,7 @@ if __name__ == '__main__':
     test_set = datasets.MNIST(root='./tmp_data', train=False, download=True, transform=FeedForward.get_transforms())
 
     # Build the network
-    net = FeedForward(input_size=len(test_set[0][0]), nb_classes=len(train_set.classes))
+    network = FeedForward(input_size=len(test_set[0][0]), nb_classes=len(train_set.classes))
 
     # Run the training and the test
-    run(train_set, test_set, net)
+    run(train_set, test_set, network)

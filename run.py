@@ -10,6 +10,8 @@ from torch.nn import Module
 from torch.utils.data import Dataset, DataLoader
 
 from corrupt_network import reduce_resolution
+from plots.misc import plot_losses
+from plots.parameters import parameters_distribution
 
 LOGGER = logging.getLogger('weights-resolution-survey')
 
@@ -47,6 +49,9 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     # Send the network to the selected device (CPU or CUDA)
     network.to(device)
 
+    # Plots pre train
+    parameters_distribution(network, 'before training')
+
     # Start the training
     _train(train_dataset, test_dataset, network)
 
@@ -54,12 +59,15 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     _test(test_dataset, network)
 
     # Reduce the resolution of the weights
-    min_value = -1
-    max_value = 1
-    delta = 0.5
+    min_value = -0.5
+    max_value = 0.5
+    delta = 0.25
     nb_states = (max_value - min_value) / delta
     reduce_resolution(network, min_value, max_value, delta)
-    LOGGER.info(f'Network resolution decreased to {nb_states} states ({math.log2(nb_states):.2} bits)')
+    LOGGER.info(f'Network resolution decreased to {nb_states:.2} states ({math.log2(nb_states):.2} bits)')
+
+    # Plots post resolution reduction
+    parameters_distribution(network, 'after resolution reduction')
 
     # Start low resolution test
     _test(test_dataset, network)
@@ -75,8 +83,11 @@ def _train(train_dataset: Dataset, test_dataset: Dataset, network: Module) -> No
     train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
     nb_batch = len(train_loader)
 
+    # Store the loss values for plot
+    loss_evolution = []
+
     # Iterate epoch
-    nb_epoch = 4
+    nb_epoch = 2
     for epoch in range(nb_epoch):
         LOGGER.info(f'Start epoch {epoch + 1:03}/{nb_epoch} ({epoch / nb_epoch * 100:05.2f}%)')
 
@@ -88,7 +99,12 @@ def _train(train_dataset: Dataset, test_dataset: Dataset, network: Module) -> No
 
             # Run a training set for these data
             loss = network.training_step(inputs, labels)
+            loss_evolution.append(float(loss))
             LOGGER.debug(f'Batch loss: {loss:.5f}')
+
+    # Post train plots
+    plot_losses(loss_evolution)
+    parameters_distribution(network, 'after training')
 
     LOGGER.info('Network training competed')
 
