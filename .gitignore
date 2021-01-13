@@ -246,3 +246,6 @@ pip-selfcheck.json
 
 # Temporary data from dataset download
 tmp_data/
+
+# The default path for local settings file
+/settings.yaml
