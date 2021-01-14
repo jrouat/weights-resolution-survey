@@ -1,3 +1,4 @@
+import argparse
 from dataclasses import dataclass, asdict
 from typing import Union
 
@@ -54,15 +55,37 @@ class Settings:
         Load settings from local file and arguments of the command line.
         """
 
+        def str_to_bool(arg_value: str) -> bool:
+            """
+            Used to handle boolean settings.
+            If not the 'bool' type convert all not empty string as true.
+
+            :param arg_value: The boolean value as a string.
+            :return: The value parsed as a string.
+            """
+            if isinstance(arg_value, bool):
+                return arg_value
+            if arg_value.lower() in {'false', 'f', '0', 'no', 'n'}:
+                return False
+            elif arg_value.lower() in {'true', 't', '1', 'yes', 'y'}:
+                return True
+            raise argparse.ArgumentTypeError(f'{arg_value} is not a valid boolean value')
+
         p = configargparse.get_argument_parser(default_config_files=['./settings.yaml'])
 
+        # Spacial argument
         p.add_argument('-s', '--settings', required=False, is_config_file=True,
                        help='path to custom configuration file')
 
+        # Create argument for each attribute of this class
         for name, value in asdict(self).items():
-            p.add_argument(f'--{name}', required=False, type=type(value))
+            p.add_argument(f'--{name.replace("_", "-")}',
+                           f'--{name}',
+                           dest=name,
+                           required=False,
+                           type=str_to_bool if type(value) == bool else type(value))
 
-        # TODO deal with unknown arguments with a warning
+        # Load arguments form file, environment and command line to override the defaults
         for name, value in vars(p.parse_args()).items():
             if name == 'settings':
                 continue

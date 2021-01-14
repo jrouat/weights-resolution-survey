@@ -3,7 +3,7 @@ import seaborn as sns
 from torch.nn import Module
 from torch.nn.utils import parameters_to_vector
 
-from utils.results_output import save_plot
+from utils.output import save_plot
 
 _parameters_history = {}
 

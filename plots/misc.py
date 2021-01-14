@@ -3,7 +3,7 @@ from typing import List
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from utils.results_output import save_plot
+from utils.output import save_plot
 
 
 def plot_losses(loss_evolution: List[float]) -> None:

@@ -12,7 +12,7 @@ from plots.parameters import parameters_distribution
 from test import test
 from train import train
 from utils.logger import logger
-from utils.results_output import init_out_directory, save_results
+from utils.output import init_out_directory, save_results
 from utils.settings import settings
 
 
