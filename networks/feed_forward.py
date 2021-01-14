@@ -6,6 +6,8 @@ import torch.nn.functional as f
 import torchvision.transforms as tr
 from torch import optim
 
+from utils.settings import settings
+
 
 class FeedForward(nn.Module):
     """
@@ -21,12 +23,12 @@ class FeedForward(nn.Module):
         """
         super().__init__()
 
-        self.fc1 = nn.Linear(input_size, 50)  # Input -> Hidden 1
-        self.fc2 = nn.Linear(50, 50)  # Hidden 1 -> Hidden 2
-        self.fc3 = nn.Linear(50, nb_classes)  # Hidden 2 -> Output
+        self.fc1 = nn.Linear(input_size, settings.size_hidden_1)  # Input -> Hidden 1
+        self.fc2 = nn.Linear(settings.size_hidden_1, settings.size_hidden_2)  # Hidden 1 -> Hidden 2
+        self.fc3 = nn.Linear(settings.size_hidden_2, nb_classes)  # Hidden 2 -> Output
 
         self._criterion = nn.CrossEntropyLoss()
-        self._optimizer = optim.SGD(self.parameters(), lr=0.001, momentum=0.9)
+        self._optimizer = optim.SGD(self.parameters(), lr=settings.learning_rate, momentum=0.9)
 
     def forward(self, x: Any) -> Any:
         """

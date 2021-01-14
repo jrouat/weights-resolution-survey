@@ -3,6 +3,8 @@ import seaborn as sns
 from torch.nn import Module
 from torch.nn.utils import parameters_to_vector
 
+from utils.results_output import save_plot
+
 _parameters_history = {}
 
 
@@ -16,7 +18,7 @@ def parameters_distribution(network: Module, title_context: str = ''):
     plt.title(f'Network\'s parameters distribution {title_context}')
     plt.xlabel('Parameter values')
     plt.ylabel('Count')
-    plt.show()
+    save_plot('parameters_distribution ' + title_context)
 
 
 def parameters_distribution_group(network: Module, title_context: str = ''):
@@ -27,4 +29,4 @@ def parameters_distribution_group(network: Module, title_context: str = ''):
     plt.title(f'Network\'s parameters distribution {title_context}')
     plt.xlabel('Parameter values')
     plt.ylabel('Count')
-    plt.show()
+    save_plot()

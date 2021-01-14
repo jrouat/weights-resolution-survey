@@ -17,17 +17,26 @@ class Settings:
         - arguments of the command line (with "--" in front)
     """
 
+    # Name of the run to save the result ('tmp' for temporary files)
     run_name: str = ''
 
+    # Output configuration
     logger_output_level: Union[str, int] = 'INFO'
+    show_images: bool = False
 
     # Resolution reduction
     min_value: float = -0.5
     max_value: float = 0.5
     inaccuracy_value: float = 0.25
 
+    # Training settings
     batch_size: int = 4
     nb_epoch: int = 4
+    learning_rate: float = 0.001
+
+    # Network configuration
+    size_hidden_1: int = 50
+    size_hidden_2: int = 50
 
     def validate(self):
         """
@@ -55,6 +64,8 @@ class Settings:
 
         # TODO deal with unknown arguments with a warning
         for name, value in vars(p.parse_args()).items():
+            if name == 'settings':
+                continue
             if value is not None:
                 # Directly set the value to bypass the "__setattr__" function
                 self.__dict__[name] = value

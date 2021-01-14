@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, Dataset
 from utils.logger import logger
 
 
-def test(test_dataset: Dataset, network: Module) -> None:
+def test(test_dataset: Dataset, network: Module) -> float:
     logger.info('Start network testing...')
 
     # Turn on the inference mode of the network
@@ -33,6 +33,9 @@ def test(test_dataset: Dataset, network: Module) -> None:
             nb_total += len(labels)
             nb_correct += torch.eq(predicted, labels).sum()
 
-    logger.info(f'Test overall accuracy: {nb_correct / nb_total * 100:05.2f}%')
+    accuracy = float(nb_correct / nb_total)
+    logger.info(f'Test overall accuracy: {accuracy * 100:05.2f}%')
 
     logger.info('Network testing competed')
+
+    return accuracy

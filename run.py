@@ -12,6 +12,7 @@ from plots.parameters import parameters_distribution
 from test import test
 from train import train
 from utils.logger import logger
+from utils.results_output import init_out_directory, save_results
 from utils.settings import settings
 
 
@@ -35,6 +36,9 @@ def preparation() -> None:
 
     # Print settings
     logger.info(settings)
+
+    # Create the output directory to save results and plots
+    init_out_directory()
 
 
 def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=None) -> None:
@@ -60,7 +64,8 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     train(train_dataset, test_dataset, network)
 
     # Start normal test
-    test(test_dataset, network)
+    accuracy = test(test_dataset, network)
+    save_results(accuracy=accuracy)
 
     # Reduce the resolution of the weights
     nb_states = (settings.max_value - settings.min_value) / settings.inaccuracy_value
@@ -71,4 +76,5 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     parameters_distribution(network, 'after resolution reduction')
 
     # Start low resolution test
-    test(test_dataset, network)
+    accuracy_low_res = test(test_dataset, network)
+    save_results(accuracy_low_res=accuracy_low_res)
