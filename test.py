@@ -3,6 +3,7 @@ from torch.nn import Module
 from torch.utils.data import DataLoader, Dataset
 
 from utils.logger import logger
+from utils.settings import settings
 
 
 def test(test_dataset: Dataset, network: Module) -> float:
@@ -12,7 +13,7 @@ def test(test_dataset: Dataset, network: Module) -> float:
     network.eval()
 
     # Use the pyTorch data loader
-    test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True, num_workers=4)
+    test_loader = DataLoader(test_dataset, batch_size=settings.batch_size, shuffle=True, num_workers=4)
     nb_batch = len(test_loader)
 
     nb_correct = 0

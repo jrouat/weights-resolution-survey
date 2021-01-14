@@ -34,6 +34,7 @@ class Settings:
     batch_size: int = 4
     nb_epoch: int = 4
     learning_rate: float = 0.001
+    momentum: float = 0.9
 
     # Network configuration
     size_hidden_1: int = 50

@@ -14,7 +14,7 @@ def train(train_dataset: Dataset, test_dataset: Dataset, network: Module) -> Non
     network.train()
 
     # Use the pyTorch data loader
-    train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=4)
+    train_loader = DataLoader(train_dataset, batch_size=settings.batch_size, shuffle=True, num_workers=4)
     nb_batch = len(train_loader)
 
     # Store the loss values for plot

@@ -1,6 +1,5 @@
 from typing import Any
 
-import torch
 import torch.nn as nn
 import torch.nn.functional as f
 import torchvision.transforms as tr
@@ -9,23 +8,31 @@ from torch import optim
 from utils.settings import settings
 
 
-class FeedForward(nn.Module):
+class CNN(nn.Module):
     """
-    Simple feed forward classifier neural network.
+    Simple convolutional classifier neural network.
     """
 
     def __init__(self, input_size: int, nb_classes: int):
         """
-        Create a new network with 2 hidden layers fully connected.
+        Create a convolutional classifier neural network with 2 hidden layers (1 convolutional, 1 fully connected)
 
         :param input_size: The size of one item of the dataset used for the training
         :param nb_classes: Number of class to classify
         """
         super().__init__()
 
-        self.fc1 = nn.Linear(input_size, settings.size_hidden_1)  # Input -> Hidden 1
-        self.fc2 = nn.Linear(settings.size_hidden_1, settings.size_hidden_2)  # Hidden 1 -> Hidden 2
-        self.fc3 = nn.Linear(settings.size_hidden_2, nb_classes)  # Hidden 2 -> Output
+        # TODO possible dynamic input size with
+        #  https://discuss.pytorch.org/t/utility-function-for-calculating-the-shape-of-a-conv-output/11173/7
+
+        # Input -> Hidden 1 (convolution)
+        self.conv = nn.Conv2d(in_channels=1, out_channels=6, kernel_size=5)
+        # Pooling for Hidden 1
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+        # Hidden 1 (convolution) -> Hidden 2 (fc)
+        self.fc1 = nn.Linear(12 * 12 * 6, settings.size_hidden_2)
+        # Hidden 2 -> Output
+        self.fc2 = nn.Linear(settings.size_hidden_2, nb_classes)
 
         self._criterion = nn.CrossEntropyLoss()
         self._optimizer = optim.SGD(self.parameters(), lr=settings.learning_rate, momentum=settings.momentum)
@@ -37,9 +44,14 @@ class FeedForward(nn.Module):
         :param x: One input of the dataset
         :return: The output of the network
         """
+        # Convolution + Max Pooling
+        x = self.pool(f.relu(self.conv(x)))
+        # Flatten the data for the FC layer
+        x = x.view(settings.batch_size, -1)
+        # Feed forward
         x = f.relu(self.fc1(x))
-        x = f.relu(self.fc2(x))
-        x = self.fc3(x)
+        # Feed forward classification
+        x = self.fc2(x)
         return x
 
     def training_step(self, inputs: Any, labels: Any):
@@ -68,5 +80,4 @@ class FeedForward(nn.Module):
         """
         return tr.Compose([
             tr.ToTensor(),  # Convert to pytorch tensor
-            tr.Lambda(lambda x: torch.flatten(x))  # Flatten the 28x28 image to a 784 array
         ])
