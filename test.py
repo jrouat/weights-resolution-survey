@@ -22,7 +22,6 @@ def test(test_dataset: Dataset, network: Module) -> float:
     with torch.no_grad():
         # Iterate batches
         for i, data in enumerate(test_loader):
-            logger.debug(f'Start testing batch {i + 1:03}/{nb_batch} ({i / nb_batch * 100:05.2f}%)')
             # Get the inputs: data is a list of [inputs, labels]
             inputs, labels = data
 
@@ -33,6 +32,7 @@ def test(test_dataset: Dataset, network: Module) -> float:
             # Count the result
             nb_total += len(labels)
             nb_correct += torch.eq(predicted, labels).sum()
+            # logger.debug(f'Start testing batch {i + 1:03}/{nb_batch} ({(i + 1) / nb_batch * 100:05.2f}%)')
 
     accuracy = float(nb_correct / nb_total)
     logger.info(f'Test overall accuracy: {accuracy * 100:05.2f}%')

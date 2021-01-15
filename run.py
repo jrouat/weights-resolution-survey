@@ -12,6 +12,7 @@ from plots.parameters import parameters_distribution
 from test import test
 from train import train
 from utils.logger import logger
+from utils.metrics import network_metrics
 from utils.output import init_out_directory, save_results
 from utils.settings import settings
 
@@ -56,6 +57,9 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
 
     # Send the network to the selected device (CPU or CUDA)
     network.to(device)
+
+    # Save network stats and show if debug enable
+    network_metrics(network, test_dataset[0][0].shape, device)
 
     # Plots pre train
     parameters_distribution(network, 'before training')
