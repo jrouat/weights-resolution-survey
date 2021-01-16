@@ -7,7 +7,7 @@ import configargparse
 from utils.logger import logger
 
 
-@dataclass(init=True, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False)
+@dataclass(init=False, repr=True, eq=True, order=False, unsafe_hash=False, frozen=False)
 class Settings:
     """
     Storing all settings for this program with default values.
@@ -21,8 +21,10 @@ class Settings:
     # Name of the run to save the result ('tmp' for temporary files)
     run_name: str = ''
 
-    # Output configuration
-    logger_output_level: Union[str, int] = 'INFO'
+    # Logging and outputs
+    logger_console_level: Union[str, int] = 'INFO'
+    logger_file_level: Union[str, int] = 'DEBUG'
+    logger_file_enable: bool = True
     show_images: bool = False
 
     # Resolution reduction
@@ -44,12 +46,20 @@ class Settings:
         """
         Validate settings.
         """
-        # TODO check if run_name have valid character for a file
-        assert self.logger_output_level in ['CRITICAL', 'FATAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG',
-                                            'NOTSET'] or isinstance(self.logger_output_level, int), 'Invalid log level'
+        possible_log_levels = ['CRITICAL', 'FATAL', 'ERROR', 'WARN', 'WARNING', 'INFO', 'DEBUG', 'NOTSET']
+        assert self.logger_console_level in possible_log_levels or isinstance(self.logger_console_level, int), \
+            f"Invalid console log level '{self.logger_console_level}'"
+        assert self.logger_file_level in possible_log_levels or isinstance(self.logger_file_level, int), \
+            f"Invalid file log level '{self.logger_file_level}'"
 
         assert self.batch_size > 0, 'Batch size should be a positive integer'
         assert self.nb_epoch > 0, 'Number of epoch should be at least 1'
+
+    def __init__(self):
+        """
+        Create the setting object.
+        """
+        self._load_file_and_cmd()
 
     def _load_file_and_cmd(self) -> None:
         """
@@ -95,12 +105,6 @@ class Settings:
                 self.__dict__[name] = value
 
         self.validate()
-
-    def __post_init__(self):
-        """
-        Called after the init of this object.
-        """
-        self._load_file_and_cmd()
 
     def __setattr__(self, name, value) -> None:
         """

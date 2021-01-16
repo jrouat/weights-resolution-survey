@@ -1,4 +1,3 @@
-import glob
 from dataclasses import asdict
 from pathlib import Path
 from typing import Any
@@ -27,20 +26,25 @@ def init_out_directory() -> None:
             (run_dir / 'settings.yaml').unlink(missing_ok=True)
             (run_dir / 'results.yaml').unlink(missing_ok=True)
             (run_dir / 'network_info.yaml').unlink(missing_ok=True)
+            (run_dir / 'run.log').unlink(missing_ok=True)
 
             # Remove images
             if img_dir.is_dir():
                 # Remove png images files
-                for png_file in glob.glob(str(img_dir / '*.png')):
-                    Path(png_file).unlink()
+                for png_file in img_dir.glob('*.png'):
+                    png_file.unlink()
                 img_dir.rmdir()
 
             # Remove tmp directory
             run_dir.rmdir()
 
+    # Create the directories
     img_dir.mkdir(parents=True)
-
     logger.info(f'Output directory created: {run_dir}')
+
+    # Init the logger file
+    if settings.logger_file_enable:
+        logger.enable_log_file(file_path=(run_dir / 'run.log'), file_log_level=settings.logger_file_level)
 
     parameter_file = run_dir / 'settings.yaml'
     with open(parameter_file, 'w+') as f:
@@ -67,7 +71,7 @@ def save_results(**results: Any) -> None:
     """
     Write a new line in the result file.
 
-    :param results dictionary of labels and values.
+    :param results: Dictionary of labels and values, could be anything that implement __str__.
     """
     results_path = Path(OUT_DIR, settings.run_name, 'results.yaml')
 

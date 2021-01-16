@@ -24,27 +24,27 @@ def preparation() -> None:
 
     # Settings are automatically loaded with the first import
 
-    # Load logger
-    logger.setLevel(settings.logger_output_level)
+    # Setup console logger but wait to create the directory before to setup the file output
+    logger.set_console_level(settings.logger_console_level)
+
+    # Create the output directory to save results and plots
+    init_out_directory()
+
+    # Set plot style
+    sns.set_theme()
 
     # Set random seeds for reproducibility
     random.seed(42)
     torch.manual_seed(42)
     np.random.seed(42)
 
-    # Set plot style
-    sns.set_theme()
-
     # Print settings
     logger.info(settings)
-
-    # Create the output directory to save results and plots
-    init_out_directory()
 
 
 def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=None) -> None:
     """
-    Run the training and the testing og the network.
+    Run the training and the testing of the network.
 
     :param train_dataset: The training dataset
     :param test_dataset: The testing dataset
