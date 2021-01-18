@@ -21,26 +21,36 @@ class Settings:
     # Name of the run to save the result ('tmp' for temporary files)
     run_name: str = ''
 
-    # Logging and outputs
+    # ======================== Logging and outputs ========================
     logger_console_level: Union[str, int] = 'INFO'
     logger_file_level: Union[str, int] = 'DEBUG'
     logger_file_enable: bool = True
     show_images: bool = False
 
-    # Resolution reduction
+    # ======================= Resolution reduction ========================
     min_value: float = -0.5
     max_value: float = 0.5
     inaccuracy_value: float = 0.25
 
-    # Training settings
+    # ========================= Training settings =========================
     batch_size: int = 4
     nb_epoch: int = 4
     learning_rate: float = 0.001
     momentum: float = 0.9
 
-    # Network configuration
+    # ======================= Network configuration =======================
     size_hidden_1: int = 50
     size_hidden_2: int = 50
+
+    # =================== Spiking network configuration ===================
+    # Total time that each image is presented to the network (ms)
+    duration_per_image: int = 100
+    # Time step for the time discretization used to solve differential equation (ms)
+    delta_t: int = 1
+
+    @property
+    def absolute_duration(self):
+        return int(self.duration_per_image / self.delta_t)
 
     def validate(self):
         """
@@ -54,6 +64,8 @@ class Settings:
 
         assert self.batch_size > 0, 'Batch size should be a positive integer'
         assert self.nb_epoch > 0, 'Number of epoch should be at least 1'
+
+        assert self.duration_per_image > self.delta_t, 'Time step delta t should be lower that the duration_per_image'
 
     def __init__(self):
         """
