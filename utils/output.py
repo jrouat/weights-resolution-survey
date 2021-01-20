@@ -1,8 +1,10 @@
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
+import torch
+from torch.nn import Module
 
 from utils.logger import logger
 from utils.settings import settings
@@ -34,6 +36,10 @@ def init_out_directory() -> None:
                 for png_file in img_dir.glob('*.png'):
                     png_file.unlink()
                 img_dir.rmdir()
+
+            # Remove saved networks
+            for p_file in run_dir.glob('*.p'):
+                p_file.unlink()
 
             # Remove tmp directory
             run_dir.rmdir()
@@ -93,3 +99,32 @@ def save_plot(file_name: str) -> None:
 
     # Plot image or close it
     plt.show(block=False) if settings.show_images else plt.close()
+
+
+def save_network(network: Module, file_name: str = 'network') -> None:
+    """
+    Save a full description of the network parameters and states.
+
+    :param network: The network to save
+    :param file_name: The name of the destination file (without the extension)
+    """
+    cache_path = Path(OUT_DIR, settings.run_name, file_name + '.p')
+    torch.save(network.state_dict(), cache_path)
+    logger.info(f'Network saved ({cache_path})')
+
+
+def load_network(network: Module, file_path: Union[str, Path]) -> bool:
+    """
+    Load a full description of the network parameters and states from a previous save file.
+
+    :param network: The network to load into (in place)
+    :param file_path: The path to the file to load
+    :return: True if the file exist and is loaded, False if the file is not found.
+    """
+    cache_path = Path(file_path) if isinstance(file_path, str) else file_path
+    if cache_path.is_file():
+        network.load_state_dict(torch.load(cache_path))
+        logger.info(f'Network loaded ({cache_path})')
+        return True
+    logger.warning(f'Network cache not found in "{cache_path}"')
+    return False

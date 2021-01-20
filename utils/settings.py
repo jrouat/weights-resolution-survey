@@ -26,6 +26,8 @@ class Settings:
     logger_file_level: Union[str, int] = 'DEBUG'
     logger_file_enable: bool = True
     show_images: bool = False
+    save_network: bool = True
+    trained_network_cache_path: str = ''
 
     # ======================= Resolution reduction ========================
     min_value: float = -0.5
