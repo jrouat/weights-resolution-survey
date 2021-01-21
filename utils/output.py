@@ -16,6 +16,13 @@ def init_out_directory() -> None:
     """
     Prepare the output directory.
     """
+
+    # Skip saving if the name of the run is not set
+    if not settings.run_name:
+        logger.warning('Nothing will be saved because the name of the run is not set. '
+                       'See "run_name" in the setting file to change this behaviours.')
+        return
+
     run_dir = Path(OUT_DIR, settings.run_name)
     img_dir = run_dir / 'img'
 
@@ -65,6 +72,11 @@ def save_network_info(network_metrics: dict) -> None:
 
     :param network_metrics: The dictionary of metrics with their values.
     """
+
+    # Skip saving if the name of the run is not set
+    if not settings.run_name:
+        return
+
     run_dir = Path(OUT_DIR, settings.run_name)
     network_info_file = run_dir / 'network_info.yaml'
     with open(network_info_file, 'w+') as f:
@@ -79,6 +91,11 @@ def save_results(**results: Any) -> None:
 
     :param results: Dictionary of labels and values, could be anything that implement __str__.
     """
+
+    # Skip saving if the name of the run is not set
+    if not settings.run_name:
+        return
+
     results_path = Path(OUT_DIR, settings.run_name, 'results.yaml')
 
     # Append to the file, create it if necessary
@@ -93,6 +110,11 @@ def save_plot(file_name: str) -> None:
     """
     Save a plot image in the directory
     """
+
+    # Skip saving if the name of the run is not set
+    if not settings.run_name:
+        return
+
     save_path = Path(OUT_DIR, settings.run_name, 'img', f'{file_name}.png')
     plt.savefig(save_path)
     logger.debug(f'Plot saved in {save_path}')
@@ -108,6 +130,11 @@ def save_network(network: Module, file_name: str = 'network') -> None:
     :param network: The network to save
     :param file_name: The name of the destination file (without the extension)
     """
+
+    # Skip saving if the name of the run is not set
+    if not settings.run_name:
+        return
+
     cache_path = Path(OUT_DIR, settings.run_name, file_name + '.p')
     torch.save(network.state_dict(), cache_path)
     logger.info(f'Network saved ({cache_path})')
