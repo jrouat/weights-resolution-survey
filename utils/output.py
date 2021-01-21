@@ -137,7 +137,7 @@ def save_network(network: Module, file_name: str = 'network') -> None:
 
     cache_path = Path(OUT_DIR, settings.run_name, file_name + '.p')
     torch.save(network.state_dict(), cache_path)
-    logger.info(f'Network saved ({cache_path})')
+    logger.debug(f'Network saved ({cache_path})')
 
 
 def load_network(network: Module, file_path: Union[str, Path]) -> bool:

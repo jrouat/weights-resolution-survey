@@ -13,7 +13,7 @@ from test import test
 from train import train
 from utils.logger import logger
 from utils.metrics import network_metrics
-from utils.output import init_out_directory, save_results
+from utils.output import init_out_directory
 from utils.settings import settings
 
 
@@ -31,7 +31,11 @@ def preparation() -> None:
     init_out_directory()
 
     # Set plot style
-    sns.set_theme()
+    sns.set_theme(rc={
+        'axes.titlesize': 15,
+        'axes.labelsize': 13,
+        'figure.autolayout': True
+    })
 
     # Set random seeds for reproducibility
     random.seed(42)
@@ -68,8 +72,7 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     train(train_dataset, test_dataset, network)
 
     # Start normal test
-    accuracy = test(test_dataset, network)
-    save_results(accuracy=accuracy)
+    test(test_dataset, network, 'ideal')
 
     # Reduce the resolution of the weights
     nb_states = (settings.max_value - settings.min_value) / settings.inaccuracy_value
@@ -80,5 +83,4 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     parameters_distribution(network, 'after resolution reduction')
 
     # Start low resolution test
-    accuracy_low_res = test(test_dataset, network)
-    save_results(accuracy_low_res=accuracy_low_res)
+    test(test_dataset, network, 'low_resolution')

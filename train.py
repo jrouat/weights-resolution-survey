@@ -31,7 +31,6 @@ def train(train_dataset: Dataset, test_dataset: Dataset, network: Module) -> Non
 
         # Iterate batches
         for i, data in enumerate(train_loader):
-
             # Get the inputs; data is a list of [inputs, labels]
             inputs, labels = data
 
@@ -40,11 +39,11 @@ def train(train_dataset: Dataset, test_dataset: Dataset, network: Module) -> Non
             loss_evolution.append(float(loss))
             # logger.debug(f'Training batch {i + 1:03}/{nb_batch} ({(i + 1) / nb_batch * 100:05.2f}%) - Loss: {loss:.5f}')
 
+    logger.info('Network training competed')
+
     # Post train plots
     plot_losses(loss_evolution)
     parameters_distribution(network, 'after training')
-
-    logger.info('Network training competed')
 
     if settings.save_network:
         save_network(network, 'trained_network')
