@@ -19,19 +19,18 @@ def network_metrics(network: Module, input_dim: List, device: Optional[torch.dev
     :param save_output: If true the metrics will be saved in a text file in the run directory
     :return: A dictionary of metrics with their values
     """
-    # TODO fix input info
     network_info = summary(network, device=device, verbose=0)
 
     logger.debug('Network info:\n' + str(network_info))
 
     metrics = {
         'name': type(network).__name__,
-        'device': device,
+        'device': str(device),
         'total_params': network_info.total_params,
         'trainable_params': network_info.trainable_params,
         'non_trainable_params': network_info.total_params - network_info.trainable_params,
         'MAC_operations': network_info.total_mult_adds,
-        'input_dimension': input_dim
+        'input_dimension': tuple(input_dim)
     }
 
     if save_output:

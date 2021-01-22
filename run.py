@@ -2,7 +2,6 @@ import math
 import random
 
 import numpy as np
-import seaborn as sns
 import torch
 from torch.nn import Module
 from torch.utils.data import Dataset
@@ -13,7 +12,7 @@ from test import test
 from train import train
 from utils.logger import logger
 from utils.metrics import network_metrics
-from utils.output import init_out_directory
+from utils.output import init_out_directory, set_plot_style
 from utils.settings import settings
 
 
@@ -31,11 +30,7 @@ def preparation() -> None:
     init_out_directory()
 
     # Set plot style
-    sns.set_theme(rc={
-        'axes.titlesize': 15,
-        'axes.labelsize': 13,
-        'figure.autolayout': True
-    })
+    set_plot_style()
 
     # Set random seeds for reproducibility
     random.seed(42)

@@ -45,7 +45,7 @@ def plot_confusion_matrix(nb_labels_predictions: np.ndarray, class_names: List[s
                 annot=annotations,
                 cbar=(not annotations))
     plt.title(f'Confusion matrix of {len(nb_labels_predictions)} classes '
-              f'with {overall_accuracy * 100:.2f}% overall accuracy ({title_add})')
+              f'with {overall_accuracy * 100:.2f}% overall accuracy\n({title_add})')
     plt.xlabel('Predictions')
     plt.ylabel('Labels')
     save_plot('confusion_matrix_' + title_add)

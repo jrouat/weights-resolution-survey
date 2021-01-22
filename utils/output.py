@@ -3,13 +3,21 @@ from pathlib import Path
 from typing import Any, Union
 
 import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
 import torch
+import yaml
 from torch.nn import Module
 
 from utils.logger import logger
 from utils.settings import settings
 
 OUT_DIR = './out'
+OUT_FILES = {
+    'settings': 'settings.yaml',
+    'results': 'results.yaml',
+    'network_info': 'network_info.yaml'
+}
 
 
 def init_out_directory() -> None:
@@ -32,10 +40,9 @@ def init_out_directory() -> None:
         if run_dir.exists():
             logger.warning(f'Previous temporary files removed: {run_dir}')
             # Remove text files
-            (run_dir / 'settings.yaml').unlink(missing_ok=True)
-            (run_dir / 'results.yaml').unlink(missing_ok=True)
-            (run_dir / 'network_info.yaml').unlink(missing_ok=True)
             (run_dir / 'run.log').unlink(missing_ok=True)
+            for file_name in OUT_FILES.values():
+                (run_dir / file_name).unlink(missing_ok=True)
 
             # Remove images
             if img_dir.is_dir():
@@ -59,9 +66,9 @@ def init_out_directory() -> None:
     if settings.logger_file_enable:
         logger.enable_log_file(file_path=(run_dir / 'run.log'), file_log_level=settings.logger_file_level)
 
-    parameter_file = run_dir / 'settings.yaml'
+    parameter_file = run_dir / OUT_FILES['settings']
     with open(parameter_file, 'w+') as f:
-        f.write('\n'.join([f'{name}: {str(value)}' for name, value in asdict(settings).items()]))
+        yaml.dump(asdict(settings), f)
 
     logger.debug(f'Parameters saved in {parameter_file}')
 
@@ -78,9 +85,9 @@ def save_network_info(network_metrics: dict) -> None:
         return
 
     run_dir = Path(OUT_DIR, settings.run_name)
-    network_info_file = run_dir / 'network_info.yaml'
+    network_info_file = run_dir / OUT_FILES['network_info']
     with open(network_info_file, 'w+') as f:
-        f.write('\n'.join([f'{name}: {str(value)}' for name, value in network_metrics.items()]))
+        yaml.dump(network_metrics, f)
 
     logger.debug(f'Network info saved in {network_info_file}')
 
@@ -96,14 +103,24 @@ def save_results(**results: Any) -> None:
     if not settings.run_name:
         return
 
-    results_path = Path(OUT_DIR, settings.run_name, 'results.yaml')
+    results_path = Path(OUT_DIR, settings.run_name, OUT_FILES['results'])
 
     # Append to the file, create it if necessary
     with open(results_path, 'a') as f:
-        for label, value in results.items():
-            f.write(f'{label}: {str(value)}\n')
+        yaml.dump(results, f)
 
     logger.debug(f'{len(results)} result(s) saved in {results_path}')
+
+
+def set_plot_style():
+    """
+    Set plot style.
+    """
+    sns.set_theme(rc={
+        'axes.titlesize': 15,
+        'axes.labelsize': 13,
+        'figure.autolayout': True
+    })
 
 
 def save_plot(file_name: str) -> None:
@@ -155,3 +172,39 @@ def load_network(network: Module, file_path: Union[str, Path]) -> bool:
         return True
     logger.warning(f'Network cache not found in "{cache_path}"')
     return False
+
+
+def load_run_files(dir_path: Path) -> dict:
+    """
+    Load all the information of a run from its files.
+
+    :param dir_path: The path to the directory of the run
+    :return: A dictionary of every value starting with the name of the file ("file.key": value)
+    """
+    data = {}
+
+    # For each output file of the run
+    for key, file in OUT_FILES.items():
+        with open(dir_path / file) as f:
+            content = yaml.load(f, Loader=yaml.FullLoader)
+            # For each value of each file
+            for label, value in content.items():
+                data[key + '.' + label] = value
+
+    return data
+
+
+def load_runs(pattern: str) -> pd.DataFrame:
+    """
+    Load all informations form files in the out directory matching with a pattern.
+
+    :param pattern: The pattern to filter runs
+    :return: A dataframe containing all information, with the columns as "file.key"
+    """
+    data = []
+
+    runs_dir = Path(OUT_DIR)
+    for run_dir in runs_dir.glob(pattern):
+        data.append(load_run_files(run_dir))
+
+    return pd.DataFrame(data)
