@@ -1,9 +1,10 @@
 import torchvision.datasets as datasets
 
 from networks.feed_forward import FeedForward
-from run import preparation, run
+from run import preparation, run, clean_up
 
-if __name__ == '__main__':
+
+def main():
     # Prepare the environment
     preparation()
 
@@ -18,3 +19,10 @@ if __name__ == '__main__':
 
     # Run the training and the test
     run(train_set, test_set, network)
+
+    # Clean up the environment, ready for a new run
+    clean_up()
+
+
+if __name__ == '__main__':
+    main()

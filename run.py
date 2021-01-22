@@ -41,6 +41,16 @@ def preparation() -> None:
     logger.info(settings)
 
 
+def clean_up() -> None:
+    """
+    Clean up the environment after all operations. After that a new run can start again.
+    """
+
+    # Disable the log file, so a new one can be set later
+    if settings.run_name and settings.logger_file_enable:
+        logger.disable_log_file()
+
+
 def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=None) -> None:
     """
     Run the training and the testing of the network.
@@ -69,10 +79,13 @@ def run(train_dataset: Dataset, test_dataset: Dataset, network: Module, device=N
     # Start normal test
     test(test_dataset, network, 'ideal')
 
-    # Reduce the resolution of the weights
-    nb_states = (settings.max_value - settings.min_value) / settings.inaccuracy_value
-    reduce_resolution(network, settings.min_value, settings.max_value, settings.inaccuracy_value)
-    logger.info(f'Network resolution decreased to {nb_states:.2} states ({math.log2(nb_states):.2} bits)')
+    if settings.inaccuracy_value != 0:
+        # Reduce the resolution of the weights
+        reduce_resolution(network, settings.min_value, settings.max_value, settings.inaccuracy_value)
+        nb_states = (settings.max_value - settings.min_value) / settings.inaccuracy_value
+        logger.info(f'Network resolution decreased to {nb_states:.2} states ({math.log2(nb_states):.2} bits)')
+    else:
+        logger.warning('Network resolution didn\'t changed because inaccuracy value is 0')
 
     # Plots post resolution reduction
     parameters_distribution(network, 'after resolution reduction')
