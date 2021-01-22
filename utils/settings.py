@@ -35,7 +35,7 @@ class Settings:
     inaccuracy_value: float = 0.25
 
     # ========================= Training settings =========================
-    batch_size: int = 4
+    batch_size: int = 16
     nb_epoch: int = 4
     learning_rate: float = 0.001
     momentum: float = 0.9

@@ -9,9 +9,10 @@ from utils.settings import settings
 
 if __name__ == '__main__':
     planning = {
-        'inaccuracy_value': {'name': 'inaccuracy_value',
-                             'range': map(float, np.arange(0., 0.5, 0.025)),
-                             'pre-trained': 'ref'}
+        'max_value': {'name': 'weight_limits_8_ff',
+                      'range': map(float, np.arange(0.05, 2, 0.05)),
+                      'pre-trained': 'baseline-feedforward',
+                      }
     }
 
     # Iterate through all planning settings and values
@@ -21,6 +22,8 @@ if __name__ == '__main__':
             # Change the settings
             settings.run_name = f"{plan['name']}-{i:03}"
             setattr(settings, setting, value)
+            setattr(settings, 'min_value', -value)
+            setattr(settings, 'inaccuracy_value', value / 4)
             # Set pre trained if set
             if 'pre-trained' in plan:
                 settings.trained_network_cache_path = str(Path(OUT_DIR, plan['pre-trained'], 'trained_network.p'))
