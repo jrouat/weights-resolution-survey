@@ -45,10 +45,14 @@ class Settings:
     size_hidden_2: int = 50
 
     # =================== Spiking network configuration ===================
-    # Total time that each image is presented to the network (ms)
-    duration_per_image: int = 100
-    # Time step for the time discretization used to solve differential equation (ms)
-    delta_t: int = 1
+    # Total time that each image is presented to the network
+    duration_per_image: int = 100  # ms
+    # Time step for the time discretization used to solve differential equation
+    delta_t: int = 1  # ms
+    # Parameters of the LIF neurons
+    tau_v: int = 20  # ms
+    tau_i: int = 5  # ms
+    v_threshold: float = 1.0
 
     @property
     def absolute_duration(self):
