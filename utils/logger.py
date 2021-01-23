@@ -11,8 +11,8 @@ class ColorFormatter(logging.Formatter):
 
     # See https://en.wikipedia.org/wiki/ANSI_escape_code#Colors
     COLOR_CODES = {
-        logging.CRITICAL: "\033[1;41m\033[97m",  # background red with white bold text
-        logging.ERROR: "\033[1;31m",  # bold red text
+        logging.CRITICAL: "\033[1;31m",  # bold red text
+        logging.ERROR: "\033[0;91m",  # bright red text
         logging.WARNING: "\033[0;33m",  # yellow text
         logging.INFO: "",  # default color
         logging.DEBUG: "\033[0;37m"  # light gray text

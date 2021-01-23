@@ -29,6 +29,8 @@ def preparation() -> None:
     # Create the output directory to save results and plots
     init_out_directory()
 
+    logger.info(f'Starting run' + f' "{settings.run_name}"' if settings.run_name else '')
+
     # Set plot style
     set_plot_style()
 
@@ -45,6 +47,8 @@ def clean_up() -> None:
     """
     Clean up the environment after all operations. After that a new run can start again.
     """
+
+    logger.info(f'Ending run' + f' "{settings.run_name}"' if settings.run_name else '')
 
     # Disable the log file, so a new one can be set later
     if settings.run_name and settings.logger_file_enable:
