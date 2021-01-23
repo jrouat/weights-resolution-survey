@@ -26,22 +26,14 @@ class SNN(nn.Module):
         self.nb_classes = nb_classes
 
         # Create the parameters layers.
-        # Don't use torch objects because the following code wasn't make for this. But a rework is probably possible.
-        # Input -> Hidden 1
-        fc1 = torch.empty((input_size, settings.size_hidden_1), dtype=torch.float, requires_grad=True)
-        torch.nn.init.normal_(fc1, mean=0., std=.1)
-        # Hidden 1 -> Hidden 2
-        fc2 = torch.empty((settings.size_hidden_1, settings.size_hidden_2), dtype=torch.float, requires_grad=True)
-        torch.nn.init.normal_(fc2, mean=0., std=.1)
-        # Hidden 2 -> Output
-        fc3 = torch.empty((settings.size_hidden_2, nb_classes), dtype=torch.float, requires_grad=True)
-        torch.nn.init.normal_(fc3, mean=0., std=.1)
-
-        # Init parameters
-        self.params = [fc1, fc2, fc3]
+        # FIXME the input-output of each layer need to be inverted to match with the following code (especially for
+        #  the 'run_spiking_layer' function). But this can probably be changed.
+        self.fc1 = nn.Linear(settings.size_hidden_1, input_size, bias=False)  # Input -> Hidden 1
+        self.fc2 = nn.Linear(settings.size_hidden_2, settings.size_hidden_1, bias=False)  # Hidden 1 -> Hidden 2
+        self.fc3 = nn.Linear(nb_classes, settings.size_hidden_2, bias=False)  # Hidden 2 -> Output
 
         self._criterion = nn.MSELoss(reduction='mean')
-        self._optimizer = optim.Adam(self.params, lr=settings.learning_rate, amsgrad=True)
+        self._optimizer = optim.Adam(self.parameters(), lr=settings.learning_rate, amsgrad=True)
 
     def forward(self, input_spikes: Any) -> Any:
         """
@@ -53,7 +45,7 @@ class SNN(nn.Module):
 
         next_layer_input = input_spikes
 
-        for layer_param in self.params:
+        for layer_param in self.parameters():
             # Measure the spikes of layer a for each i sample
             next_layer_input = SNN.run_spiking_layer(next_layer_input, layer_param)
 
