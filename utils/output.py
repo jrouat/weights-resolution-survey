@@ -207,4 +207,6 @@ def load_runs(pattern: str) -> pd.DataFrame:
     for run_dir in runs_dir.glob(pattern):
         data.append(load_run_files(run_dir))
 
+    logger.info(f'{len(data)} run(s) loaded with the pattern "{runs_dir}/{pattern}"')
+
     return pd.DataFrame(data)

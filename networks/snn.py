@@ -102,6 +102,8 @@ class SNN(nn.Module):
         """
         # "Remove" the pixels associated with darker pixels (Presumably less information)
         img[img > .75] = 0
+        # Re normalize [0,0.75[ => [0,1[
+        img = img * 1.3333
         # Conversion to the spiking time
         # The brighter the white, the earlier the spike
         spike_time = (img * settings.absolute_duration).round_().type(torch.int64)
@@ -144,6 +146,7 @@ class SNN(nn.Module):
         membrane_current_at_t = torch.zeros((input_spike_train.shape[0], layer_weights.shape[-1]), dtype=torch.float)
 
         for t in range(settings.absolute_duration):  # For every time step
+            # FIXME delta t is missing somewhere
             # Apply the leak
             # Using tau_v with euler or exact method
             membrane_potential_at_t = (1 - int(settings.delta_t) / int(settings.tau_v)) * membrane_potential_at_t
