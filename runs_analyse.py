@@ -49,6 +49,18 @@ if __name__ == '__main__':
     plt.legend(title='Number of bits')
     plt.show(block=False)
 
+    data = load_runs('weight_limits*snn*')
+    data['diff'] = data['settings.max_value'] - data['settings.min_value']
+    data['bits'] = np.round(np.log2(data['diff'] / data['settings.inaccuracy_value']))
+
+    sns.lineplot(data=data, x='diff', y='results.accuracy_low_resolution', hue='bits')
+    plt.title('Evolution of the testing accuracy depending of\nweights min / max and resolution (SNN)')
+    plt.xlabel('Max - Min Weight value')
+    plt.ylabel('Accuracy')
+    plt.ylim([0, 1])
+    plt.legend(title='Number of bits')
+    plt.show(block=False)
+
     # ============================== Nb Epoch ==============================
     data = load_runs('nb_epoch*')
 
@@ -64,10 +76,24 @@ if __name__ == '__main__':
     # =========================== Nb Parameters ============================
     data = load_runs('size_hidden*')
 
-    sns.lineplot(data=data, x='network_info.total_params', y='results.accuracy_low_resolution', hue='network_info.name')
+    # ideal
     sns.lineplot(data=data, x='network_info.total_params', y='results.accuracy_ideal', hue='network_info.name')
-    plt.title('Evolution of the testing accuracy depending of\nthe number of parameters on the hidden layers')
+    plt.title('Evolution of the testing accuracy depending of the number\n'
+              'of parameters on the hidden layers (ideal')
     plt.xlabel('Total number of parameters')
     plt.ylabel('Accuracy')
+    plt.xlim([0, 115135])
+    plt.ylim([0, 1])
+    plt.legend(title='Networks')
+    plt.show(block=False)
+
+    # low_resolution
+    sns.lineplot(data=data, x='network_info.total_params', y='results.accuracy_low_resolution', hue='network_info.name')
+    plt.title('Evolution of the testing accuracy depending of the number\n'
+              'of parameters on the hidden layers (low_resolution)')
+    plt.xlabel('Total number of parameters')
+    plt.ylabel('Accuracy')
+    plt.xlim([0, 115135])
+    plt.ylim([0, 1])
     plt.legend(title='Networks')
     plt.show(block=False)

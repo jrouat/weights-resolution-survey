@@ -16,7 +16,7 @@ def plot_losses(loss_evolution: List[float]) -> None:
     sns.relplot(data=loss_evolution, kind='line')
     plt.title('Loss evolution')
     plt.xlabel('Batch number')
-    plt.ylabel('Loss (Cross Entropy)')
+    plt.ylabel('Loss')
     save_plot('loss')
 
 

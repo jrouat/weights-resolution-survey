@@ -16,8 +16,6 @@ class SNN(nn.Module):
 
     def __init__(self, input_size: int, nb_classes: int):
         """
-        Create a convolutional classifier neural network with 2 hidden layers (1 convolutional, 1 fully connected)
-
         :param input_size: The size of one item of the dataset used for the training
         :param nb_classes: Number of class to classify
         """
