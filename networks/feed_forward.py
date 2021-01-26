@@ -27,6 +27,16 @@ class FeedForward(nn.Module):
         self.fc2 = nn.Linear(settings.size_hidden_1, settings.size_hidden_2)  # Hidden 1 -> Hidden 2
         self.fc3 = nn.Linear(settings.size_hidden_2, nb_classes)  # Hidden 2 -> Output
 
+        # Disable training of the hidden layers according to the settings
+        if not settings.train_hidden_1:
+            params = list(self.parameters())
+            params[0].requires_grad = False
+            params[1].requires_grad = False
+        if not settings.train_hidden_2:
+            params = list(self.parameters())
+            params[2].requires_grad = False
+            params[3].requires_grad = False
+
         self._criterion = nn.CrossEntropyLoss()
         self._optimizer = optim.SGD(self.parameters(), lr=settings.learning_rate, momentum=settings.momentum)
 

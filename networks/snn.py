@@ -30,6 +30,14 @@ class SNN(nn.Module):
         self.fc2 = nn.Linear(settings.size_hidden_2, settings.size_hidden_1, bias=False)  # Hidden 1 -> Hidden 2
         self.fc3 = nn.Linear(nb_classes, settings.size_hidden_2, bias=False)  # Hidden 2 -> Output
 
+        # Disable training of the hidden layers according to the settings
+        if not settings.train_hidden_1:
+            params = list(self.parameters())
+            params[0].requires_grad = False
+        if not settings.train_hidden_2:
+            params = list(self.parameters())
+            params[1].requires_grad = False
+
         self._criterion = nn.MSELoss(reduction='mean')
         self._optimizer = optim.Adam(self.parameters(), lr=settings.learning_rate, amsgrad=True)
 

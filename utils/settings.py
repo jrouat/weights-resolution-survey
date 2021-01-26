@@ -43,6 +43,8 @@ class Settings:
     # ======================= Network configuration =======================
     size_hidden_1: int = 50
     size_hidden_2: int = 50
+    train_hidden_1: bool = True
+    train_hidden_2: bool = True
 
     # =================== Spiking network configuration ===================
     # Total time that each image is presented to the network
